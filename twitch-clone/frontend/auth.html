@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Auth</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+  <h2>Auth — register / login</h2>
+  <form id="reg">
+    <input name="username" placeholder="username"><input name="password" placeholder="password" type="password"><button>Register</button>
+  </form>
+  <form id="login">
+    <input name="username" placeholder="username"><input name="password" placeholder="password" type="password"><button>Login</button>
+  </form>
+  <p>Or login with OAuth:</p>
+  <a href="/api/oauth/google">Google</a> | <a href="/api/oauth/github">GitHub</a>
+  <script>
+    document.getElementById('reg').onsubmit = async e => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const res = await fetch('/api/auth/register',{method:'POST',body:JSON.stringify({username:fd.get('username'),password:fd.get('password')}),headers:{'Content-Type':'application/json'}});
+      alert(await res.text());
+    };
+    document.getElementById('login').onsubmit = async e => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const res = await fetch('/api/auth/login',{method:'POST',body:JSON.stringify({username:fd.get('username'),password:fd.get('password')}),headers:{'Content-Type':'application/json'}});
+      const j = await res.json();
+      if(j.token) alert('Got token: ' + j.token.slice(0,20)+'...');
+      else alert('Login failed');
+    };
+  </script>
+</body>
+</html>
