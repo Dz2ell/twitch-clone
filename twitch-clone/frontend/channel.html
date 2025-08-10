@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Канал</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="player-wrap">
+    <video id="video" controls autoplay style="width:100%;max-width:900px;"></video>
+  </div>
+  <aside class="chat">
+    <div id="msgs" style="height:300px;overflow:auto;border:1px solid #ddd;padding:8px"></div>
+    <input id="mtext" placeholder="Написать..."><button id="send">Отправить</button>
+  </aside>
+
+  <script>
+    const urlParams = new URLSearchParams(location.search);
+    const streamKey = urlParams.get('s') || 'demo';
+    const HLS_URL = `${location.protocol}//${location.hostname}:8000/live/${streamKey}/index.m3u8`;
+
+    const video = document.getElementById('video');
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(HLS_URL);
+      hls.attachMedia(video);
+    } else {
+      video.src = HLS_URL;
+    }
+
+    const socket = io();
+    const channel = streamKey;
+    socket.emit('join', { channel });
+    socket.on('msg', m => {
+      const el = document.createElement('div');
+      el.textContent = `[${new Date(m.ts).toLocaleTimeString()}] ${m.user}: ${m.text}`;
+      document.getElementById('msgs').appendChild(el);
+    });
+    document.getElementById('send').onclick = () => {
+      const text = document.getElementById('mtext').value;
+      socket.emit('msg', { channel, user: 'Guest', text });
+      document.getElementById('mtext').value = '';
+    };
+  </script>
+</body>
+</html>
