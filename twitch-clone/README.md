@@ -1,4 +1,4 @@
-# twitch-clone-live — package (ZIP)
+# twitch-clone-live
 
 ## What's inside
 - backend/ — Express + NodeMediaServer (RTMP -> HLS), OAuth via Passport (Google & GitHub)
